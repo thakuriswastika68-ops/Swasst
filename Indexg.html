@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess the Word Game (Colourful)</title>
+<style>
+  :root{
+    --page-bg: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a1c4fd, #c2e9fb);
+    --card-bg: rgba(255,255,255,0.9);
+    --accent: #4f46e5;
+    --accent-2: #7c3aed;
+    --muted: #374151;
+    --success: #16a34a;
+    --danger: #ef4444;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;font-family: "Comic Sans MS", cursive, sans-serif;}
+  body{
+    background: var(--page-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: bgShift 15s ease infinite alternate;
+    background-size: 400% 400%;
+  }
+  @keyframes bgShift {
+    0%{background-position: 0% 50%;}
+    100%{background-position: 100% 50%;}
+  }
+  #game{
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 450px;
+    backdrop-filter: blur(6px);
+  }
+  h1{
+    background: linear-gradient(90deg, #ff512f, #dd2476);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  input[type="text"]{
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    width: 50px;
+    text-align: center;
+    border: 2px solid #7c3aed;
+    border-radius: 0.75rem;
+    outline: none;
+  }
+  button{
+    margin: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  button:hover{
+    transform: scale(1.05);
+  }
+  #wrongGuesses{
+    margin-top: 1rem;
+    color: var(--danger);
+    font-weight: bold;
+  }
+  #message{
+    margin-top: 0.5rem;
+    min-height: 1.5em;
+    font-weight: bold;
+  }
+  #hint{
+    font-style: italic;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  #guessedLetters{
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  select{
+    margin-top: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div id="game">
+  <h1>🌈 Guess the Word 🎉</h1>
+  <label for="difficulty">Choose Difficulty:</label>
+  <select id="difficulty" onchange="restartGame()">
+    <option value="easy">Easy 😃</option>
+    <option value="medium" selected>Medium 🙂</option>
+    <option value="hard">Hard 😈</option>
+  </select>
+  <p id="hint"></p>
+  <p id="wordDisplay"></p>
+  <input type="text" id="guessInput" maxlength="1">
+  <button onclick="makeGuess()">Guess</button>
+  <p id="message"></p>
+  <p id="wrongGuesses"></p>
+  <p id="guessedLetters"></p>
+  <button onclick="restartGame()">Restart Game 🔄</button>
+</div>
+<script>
+const words = [
+  {word: "APPLE", hints: ["Fruit", "Red or green", "Keeps the doctor away"]},
+  {word: "BANANA", hints: ["Fruit", "Yellow curved", "Loved by monkeys"]},
+  {word: "ORANGE", hints: ["Fruit", "Also a color", "Citrus vitamin C booster"]},
+  {word: "GRAPE", hints: ["Fruit", "Small and round", "Used to make wine"]},
+  {word: "MANGO", hints: ["Fruit", "Sweet and tropical", "King of fruits in India"]},
+  {word: "PEACH", hints: ["Fruit", "Fuzzy skin", "Has a pit inside"]}
+];
+let word, display, wrongCount, maxWrong, hints, currentHintIndex, guessedLetters, difficulty;
+function startGame() {
+  const choice = words[Math.floor(Math.random()*words.length)];
+  word = choice.word;
+  hints = choice.hints;
+  currentHintIndex = 0;
+  display = "_".repeat(word.length).split("");
+  wrongCount = 0;
+  guessedLetters = [];
+  difficulty = document.getElementById("difficulty").value;
+  if(difficulty==="easy") maxWrong = 8;
+  else if(difficulty==="hard") maxWrong = 5;
+  else maxWrong = 6;
+  updateDisplay();
+  document.getElementById("hint").textContent = "Hint: " + hints[currentHintIndex];
+  document.getElementById("message").textContent = "";
+  document.getElementById("wrongGuesses").textContent = `Wrong guesses: 0/${maxWrong}`;
+  document.getElementById("guessedLetters").textContent = "Guessed letters: ";
+}
+function updateDisplay() {
+  document.getElementById("wordDisplay").textContent = display.join(" ");
+}
+function makeGuess() {
+  const input = document.getElementById("guessInput");
+  let guess = input.value.toUpperCase();
+  input.value = "";
+  if(!guess || guess.length!==1) return;
+  if(guessedLetters.includes(guess)){
+    document.getElementById("message").textContent = "⚠️ Already guessed!";
+    return;
+  }
+  guessedLetters.push(guess);
+  document.getElementById("guessedLetters").textContent = "Guessed letters: " + guessedLetters.join(", ");
+  if(word.includes(guess)){
+    let found = false;
+    for(let i=0;i<word.length;i++){
+      if(word[i]===guess && display[i]==="_"){
+        display[i] = guess;
+        found = true;
+      }
+    }
+    updateDisplay();
+    document.getElementById("message").textContent = found ? "✅ Good guess!" : "🔄 Already revealed!";
+  } else {
+    wrongCount++;
+    document.getElementById("wrongGuesses").textContent = `Wrong guesses: ${wrongCount}/${maxWrong}`;
+    document.getElementById("message").textContent = "❌ Wrong guess!";
+    if(wrongCount % 2 === 0 && currentHintIndex < hints.length - 1){
+      currentHintIndex++;
+      document.getElementById("hint").textContent = "Hint: " + hints[currentHintIndex];
+    }
+    if((difficulty==="easy" || difficulty==="medium") && wrongCount === 3){
+      revealRandomLetter();
+    }
+  }
+  if(display.join("")===word){
+    document.getElementById("message").textContent = "🎉 You won!";
+  } else if(wrongCount>=maxWrong){
+    document.getElementById("message").textContent = `💀 You lost! The word was: ${word}`;
+    display = word.split(""); 
+    updateDisplay();
+  }
+}
+function revealRandomLetter(){
+  let unrevealed = [];
+  for(let i=0;i<word.length;i++){
+    if(display[i]==="_") unrevealed.push(i);
+  }
+  if(unrevealed.length>0){
+    let idx = unrevealed[Math.floor(Math.random()*unrevealed.length)];
+    display[idx] = word[idx];
+    updateDisplay();
+    document.getElementById("message").textContent = `✨ Bonus: Letter "${word[idx]}" revealed!`;
+  }
+}
+function restartGame() {
+  startGame();
+}
+document.getElementById("guessInput").addEventListener("keyup", function(event){
+  if(event.key==="Enter"){
+    makeGuess();
+  }
+});
+startGame();
+</script>
+</body>
+</html>
