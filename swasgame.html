@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Puzzle Solver — Kids Edition</title>
+  <style>
+    :root{--bg:#FFFBF0;--card:#FFFFFF;--accent:#FFAD5A;--accent2:#7BD389;--text:#2B2B2B}
+    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{margin:0;background:linear-gradient(180deg,#FFF7E8 0%, #FCEFE0 100%);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .container{width:100%;max-width:720px;background:var(--card);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.08);padding:22px}
+    header{display:flex;gap:16px;align-items:center}
+    header h1{margin:0;font-size:1.6rem}
+    .emoji{font-size:2.2rem}
+    .top{display:flex;gap:16px;align-items:center;margin-top:12px}
+    .card{background:linear-gradient(180deg,#fff 0%,#FFF9F4 100%);padding:16px;border-radius:12px;flex:1}
+    .scramble{font-weight:700;font-size:2.4rem;letter-spacing:8px;text-align:center;margin:12px 0}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+    select,input[type=text]{padding:14px;border-radius:10px;border:1px solid #eee;font-size:1.2rem;flex:1;min-width:120px}
+    button{background:var(--accent);border:0;color:white;padding:14px 18px;border-radius:12px;font-weight:700;font-size:1.1rem;cursor:pointer;min-width:100px}
+    button.secondary{background:var(--accent2)}
+    .info{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap}
+    .message{padding:12px;border-radius:10px;background:#FFF6E9;border:1px dashed #FFDDC2;font-size:1.1rem;flex:1}
+    .attempts{font-weight:700;font-size:1.2rem}
+    .timer{font-weight:700;font-size:1.2rem;color:#e63946}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="emoji">🧩</span>
+      <h1>Puzzle Solver — Kids Edition</h1>
+    </header>
+
+    <div class="top">
+      <select id="category"></select>
+      <select id="difficulty">
+        <option value="easy">Easy 😃</option>
+        <option value="medium">Medium 😅</option>
+        <option value="hard">Hard 😰</option>
+      </select>
+      <select id="mode">
+        <option value="normal">Normal</option>
+        <option value="timed">Timed ⏱️</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <div id="scrambled" class="scramble">------</div>
+      <div class="controls">
+        <input type="text" id="guess" placeholder="Type your guess..." autocomplete="off"/>
+        <button id="submit">Submit</button>
+        <button id="hint" class="secondary">Hint</button>
+      </div>
+      <div class="info">
+        <div id="message" class="message">Pick a category and start!</div>
+        <div id="attempts" class="attempts"></div>
+        <div id="timer" class="timer"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ================= WORD BANK =================
+const WORD_BANK = {
+  "Animals": [
+    "cat","dog","lion","tiger","bear","wolf","fox","zebra","giraffe","elephant",
+    "monkey","panda","kangaroo","rabbit","deer","horse","cow","sheep","goat",
+    "pig","chicken","duck","goose","turkey","eagle","falcon","parrot","owl",
+    "penguin","dolphin","whale","shark","seal","otter","crocodile","alligator",
+    "snake","lizard","turtle","frog","toad","butterfly","bee","ant","spider",
+    "crab","lobster","octopus","squid","jellyfish","starfish","camel","donkey",
+    "ox","buffalo","leopard","cheetah","rhino","hippo","bat","swan","peacock",
+    "flamingo","woodpecker","koala","sloth","hedgehog","squirrel","rat","mouse"
+  ],
+  "Fruits": [
+    "apple","banana","orange","grape","pear","peach","plum","kiwi","lemon","lime",
+    "mango","papaya","pineapple","watermelon","cantaloupe","honeydew","cherry",
+    "strawberry","blueberry","raspberry","blackberry","pomegranate","apricot",
+    "fig","date","coconut","dragonfruit","guava","passionfruit","lychee",
+    "persimmon","cranberry","tangerine","mandarin","nectarine","olive",
+    "mulberry","starfruit","jackfruit","durian","avocado","custardapple",
+    "soursop","gooseberry","longan","sapodilla","breadfruit"
+  ],
+  "School Objects": [
+    "book","pencil","pen","eraser","sharpener","ruler","scissors","marker",
+    "crayon","notebook","paper","backpack","bag","calculator","computer","tablet",
+    "chalk","blackboard","whiteboard","desk","chair","glue","tape","stapler",
+    "clip","binder","folder","compass","protractor","setsquare","paint","brush",
+    "palette","dictionary","atlas","globe","map","clock","lamp","projector",
+    "microscope","telescope","labcoat","beaker","flask","testtube","board",
+    "laptop","headphones","mouse","keyboard","printer","highlighter","flashcard",
+    "worksheet","journal","pencilcase","textbook","envelope"
+  ]
+};
+
+// ================= VARIABLES =================
+const categorySelect = document.getElementById("category");
+const difficultySelect = document.getElementById("difficulty");
+const modeSelect = document.getElementById("mode");
+const scrambledDisplay = document.getElementById("scrambled");
+const guessInput = document.getElementById("guess");
+const messageDisplay = document.getElementById("message");
+const attemptsDisplay = document.getElementById("attempts");
+const timerDisplay = document.getElementById("timer");
+const submitBtn = document.getElementById("submit");
+const hintBtn = document.getElementById("hint");
+
+let currentWord = "";
+let scrambledWord = "";
+let attemptsLeft = 3;
+let usedHint = false;
+let timer;
+let timeLeft = 30;
+
+// ================= FUNCTIONS =================
+function populateCategories() {
+  for (let c in WORD_BANK) {
+    let opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    categorySelect.appendChild(opt);
+  }
+}
+
+function shuffleWord(word) {
+  let arr = word.split("");
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join("");
+}
+
+function setAttemptsByDifficulty() {
+  const level = difficultySelect.value;
+  if (level === "easy") attemptsLeft = 5;
+  else if (level === "medium") attemptsLeft = 3;
+  else attemptsLeft = 2;
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 30;
+  timerDisplay.textContent = "⏱️ " + timeLeft;
+  timer = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = "⏱️ " + timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      messageDisplay.textContent = `⏰ Time’s up! The word was "${currentWord}"`;
+      newWord();
+    }
+  }, 1000);
+}
+
+function newWord() {
+  const category = categorySelect.value;
+  if (!category) {
+    messageDisplay.textContent = "Please select a category!";
+    return;
+  }
+  let words = WORD_BANK[category];
+  currentWord = words[Math.floor(Math.random() * words.length)];
+  scrambledWord = shuffleWord(currentWord);
+  while (scrambledWord === currentWord) {
+    scrambledWord = shuffleWord(currentWord);
+  }
+
+  setAttemptsByDifficulty();
+  scrambledDisplay.textContent = scrambledWord;
+  guessInput.value = "";
+  guessInput.focus();
+  usedHint = false;
+  hintBtn.disabled = false;
+  messageDisplay.textContent = `Category: ${category}`;
+  attemptsDisplay.textContent = `Attempts left: ${attemptsLeft}`;
+  
+  if (modeSelect.value === "timed") {
+    startTimer();
+  } else {
+    clearInterval(timer);
+    timerDisplay.textContent = "";
+  }
+}
+
+function checkGuess() {
+  const guess = guessInput.value.trim().toLowerCase();
+  if (!guess) return;
+
+  if (guess === currentWord) {
+    messageDisplay.textContent = `✅ Correct! The word was "${currentWord}".`;
+    newWord(); // immediately load next word
+  } else {
+    attemptsLeft--;
+    if (attemptsLeft <= 0) {
+      messageDisplay.textContent = `❌ No attempts left! The word was "${currentWord}".`;
+      newWord();
+    } else {
+      messageDisplay.textContent = "❌ Wrong! Try again.";
+      attemptsDisplay.textContent = `Attempts left: ${attemptsLeft}`;
+      guessInput.value = "";
+    }
+  }
+}
+
+function giveHint() {
+  if (usedHint) return;
+  let idx = Math.floor(Math.random() * currentWord.length);
+  let hintLetter = currentWord[idx];
+  messageDisplay.textContent = `💡 Hint: The word has the letter "${hintLetter}".`;
+  usedHint = true;
+  hintBtn.disabled = true;
+}
+
+// ================= EVENT LISTENERS =================
+submitBtn.addEventListener("click", checkGuess);
+guessInput.addEventListener("keypress", e => { if (e.key === "Enter") checkGuess(); });
+hintBtn.addEventListener("click", giveHint);
+categorySelect.addEventListener("change", newWord);
+difficultySelect.addEventListener("change", newWord);
+modeSelect.addEventListener("change", newWord);
+
+// ================= INIT =================
+populateCategories();
+</script>
+</body>
+</html>
