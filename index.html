@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swastika Thakuri | Portfolio</title>
+  <style>
+    :root {
+      --bg-color: #f7faff;
+      --primary: #4f46e5;
+      --secondary: #6366f1;
+      --text: #333;
+      --card-bg: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+    }
+
+    section {
+      padding: 2rem 1rem;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--secondary);
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    .skills ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .skills li {
+      background: var(--secondary);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .projects .project {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 1.2rem;
+    }
+
+    .projects a {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .projects a:hover {
+      text-decoration: underline;
+    }
+
+    .contact p {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      text-align: center;
+      background: var(--primary);
+      color: white;
+      padding: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      .skills ul {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Swastika Thakuri</h1>
+    <p>Student | Learner</p>
+  </header>
+
+  <section class="about">
+    <h2>About Me</h2>
+    <p>Hello! I am <strong>Swastika Thakuri</strong> from Nepal. Currently pursuing my undergraduate degree at <strong>Dong-A University, Busan</strong>. Passionate about learning, growing, and building useful projects.</p>
+  </section>
+
+  <section class="skills">
+    <h2>Skills</h2>
+    <ul>
+      <li>Python (Beginner)</li>
+      <li>MS Office</li>
+      <li>Multilingual Skills</li>
+    </ul>
+  </section>
+
+  <section class="projects">
+    <h2>Projects</h2>
+    <div class="project">
+      <h3>Personal Portfolio Website</h3>
+      <p>This website is a showcase of my journey and projects.</p>
+    </div>
+    <div class="project">
+      <h3>Word Puzzle Game (Old Version)</h3>
+      <p>A simple version of my word puzzle game.</p>
+      <a href="https://github.com/thakuriswastika68-ops/Swasst/blob/main/oldwordpuzzle.html" target="_blank">View Old Game</a>
+    </div>
+    <div class="project">
+      <h3>Word Puzzle Game (Improved Version)</h3>
+      <p>The improved and enhanced version of my word puzzle game.</p>
+      <a href="https://github.com/thakuriswastika68-ops/Swasst/blob/main/wordpuzzle.html" target="_blank">Play Improved Game</a>
+    </div>
+  </section>
+
+  <section class="contact">
+    <h2>Contact</h2>
+    <p><strong>Email:</strong> <a href="mailto:thakuriswastika68@gmail.com">thakuriswastika68@gmail.com</a></p>
+    <p><strong>GitHub:</strong> <a href="https://github.com/thakuriswastika68-ops" target="_blank">github.com/thakuriswastika68-ops</a></p>
+  </section>
+
+  <footer>
+    <p>© 2025 Swastika Thakuri | Portfolio</p>
+  </footer>
+</body>
+</html>
