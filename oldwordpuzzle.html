@@ -23,6 +23,8 @@
     .message{padding:12px;border-radius:10px;background:#FFF6E9;border:1px dashed #FFDDC2}
     .attempts{font-weight:700}
     footer{margin-top:14px;text-align:center;color:#666;font-size:0.9rem}
+    footer a{color:var(--accent);font-weight:700;text-decoration:none}
+    footer a:hover{text-decoration:underline}
     @media (max-width:520px){.scramble{font-size:1.5rem;letter-spacing:4px}}
   </style>
 </head>
@@ -68,11 +70,16 @@
     <footer>
       <div id="result" aria-live="polite"></div>
       <div style="margin-top:8px">Made with ❤️ for curious kids — ask an adult if you need help.</div>
+      <div style="margin-top:10px">
+        <a href="https://chatgpt.com/share/68cb90e6-2b9c-8007-bad8-db7326f941c5" target="_blank" rel="noopener">
+          📖 View Chat History
+        </a>
+      </div>
     </footer>
   </div>
 
   <script>
-    // Word bank matching the Python version but simplified for kids
+    // Word bank
     const WORD_BANK = {
       "Animals": ["cat","dog","lion","tiger","zebra","fish"],
       "Fruits": ["apple","banana","grape","mango","pear"],
@@ -91,13 +98,14 @@
     function populateCategories(){
       categorySelect.innerHTML = '';
       Object.keys(WORD_BANK).forEach(cat => {
-        const opt = document.createElement('option'); opt.value = cat; opt.textContent = cat;
+        const opt = document.createElement('option'); 
+        opt.value = cat; 
+        opt.textContent = cat;
         categorySelect.appendChild(opt);
       });
     }
 
     function shuffleWord(w){
-      // shuffle until different (or timeout)
       if(w.length < 2) return w;
       let arr = w.split('');
       let tries = 0;
@@ -152,7 +160,6 @@
     document.getElementById('submit').addEventListener('click', checkGuess);
     document.getElementById('new').addEventListener('click', newWord);
     document.getElementById('hint').addEventListener('click', ()=>{
-      // hint: show first letter and an emoji
       const emoji = (current.category === 'Animals') ? '🐾' : (current.category === 'Fruits') ? '🍎' : '✏️';
       messageEl.textContent = `Hint: First letter is '${current.word ? current.word[0] : '?'}' ${emoji}`;
     });
@@ -162,8 +169,6 @@
 
     // Init
     populateCategories();
-    categorySelect.addEventListener('change', ()=>{ /* optional: do nothing until New Word */ });
-    // Start with a word ready
     newWord();
   </script>
 </body>
